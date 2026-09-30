@@ -1,0 +1,1532 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>My Lyrics Music Player</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 20px;
+    min-height: 100vh;
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    background:
+        radial-gradient(
+            circle at top,
+            #252525,
+            #090909 55%,
+            #000
+        );
+
+    color: white;
+}
+
+
+/* CONTAINER */
+
+.container {
+    width: 100%;
+    max-width: 900px;
+    margin: auto;
+}
+
+
+/* HEADER */
+
+.header {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.header h1 {
+    font-size: 34px;
+    margin: 0;
+}
+
+.header p {
+    color: #999;
+    margin-top: 8px;
+}
+
+
+/* CARD */
+
+.card {
+    background:
+        rgba(255,255,255,0.06);
+
+    border:
+        1px solid rgba(255,255,255,0.1);
+
+    border-radius: 20px;
+
+    padding: 20px;
+
+    margin-bottom: 20px;
+
+    backdrop-filter:
+        blur(15px);
+
+    box-shadow:
+        0 15px 40px
+        rgba(0,0,0,0.35);
+}
+
+
+/* LABEL */
+
+label {
+    display: block;
+
+    font-weight: bold;
+
+    margin-bottom: 8px;
+}
+
+
+/* INPUT */
+
+input,
+textarea {
+
+    width: 100%;
+
+    padding: 13px;
+
+    border-radius: 12px;
+
+    border:
+        1px solid #333;
+
+    background:
+        #0b0b0b;
+
+    color: white;
+
+    outline: none;
+
+    margin-bottom: 15px;
+
+    font-size: 15px;
+}
+
+
+input:focus,
+textarea:focus {
+    border-color: #888;
+}
+
+
+textarea {
+
+    min-height: 220px;
+
+    resize: vertical;
+
+    line-height: 1.8;
+}
+
+
+/* BUTTON */
+
+button {
+
+    border: none;
+
+    border-radius: 12px;
+
+    padding: 13px 18px;
+
+    background: white;
+
+    color: black;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition: .2s;
+}
+
+
+button:hover {
+    transform: scale(1.03);
+}
+
+
+button:active {
+    transform: scale(.97);
+}
+
+
+/* TIMING */
+
+.time-section {
+    margin-bottom: 25px;
+}
+
+.time-section:last-child {
+    margin-bottom: 0;
+}
+
+
+.time-title {
+
+    font-size: 18px;
+
+    margin-bottom: 12px;
+}
+
+
+.time-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 10px;
+}
+
+
+.time-item {
+    text-align: center;
+}
+
+
+.time-item label {
+
+    font-size: 12px;
+
+    color: #aaa;
+}
+
+
+/* INFO */
+
+.info {
+
+    color: #888;
+
+    font-size: 13px;
+
+    line-height: 1.6;
+
+    margin-top: 5px;
+}
+
+
+/* PLAYER */
+
+.player {
+    text-align: center;
+}
+
+
+.cover {
+
+    width: 190px;
+
+    height: 190px;
+
+    margin:
+        10px auto 25px;
+
+    border-radius: 50%;
+
+    background:
+
+        radial-gradient(
+            circle,
+            #555 0 8%,
+            #111 9% 22%,
+            #333 23% 27%,
+            #111 28% 48%,
+            #050505 49%
+        );
+
+    box-shadow:
+
+        0 0 50px
+        rgba(255,255,255,.15);
+
+    position: relative;
+}
+
+
+.cover::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 25px;
+
+    height: 25px;
+
+    background: #050505;
+
+    border-radius: 50%;
+
+    left: 50%;
+    top: 50%;
+
+    transform:
+        translate(-50%, -50%);
+}
+
+
+.cover.playing {
+
+    animation:
+        spin 5s linear infinite;
+}
+
+
+@keyframes spin {
+
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
+/* TIME */
+
+.music-time {
+
+    font-family: monospace;
+
+    font-size: 17px;
+
+    margin-bottom: 10px;
+}
+
+
+/* PROGRESS */
+
+#progress {
+
+    width: 100%;
+
+    margin-bottom: 15px;
+
+    cursor: pointer;
+}
+
+
+/* CONTROLS */
+
+.controls {
+
+    display: grid;
+
+    grid-template-columns:
+        1fr 1.5fr 1fr;
+
+    gap: 10px;
+}
+
+
+/* LYRICS */
+
+.lyrics-box {
+
+    min-height: 300px;
+
+    max-height: 550px;
+
+    overflow-y: auto;
+
+    background:
+        rgba(0,0,0,.35);
+
+    border-radius: 15px;
+
+    padding: 25px 15px;
+
+    text-align: center;
+}
+
+
+.lyric-line {
+
+    min-height: 34px;
+
+    margin: 18px 0;
+
+    font-size: 22px;
+
+    color: #555;
+
+    transition:
+        .3s;
+}
+
+
+.lyric-line.active {
+
+    color: white;
+
+    transform:
+        scale(1.04);
+}
+
+
+/*
+    SETIAP HURUF
+*/
+
+.char {
+
+    display: inline-block;
+
+    opacity: 0;
+
+    transform:
+        translateY(8px);
+
+    transition:
+        opacity .08s,
+        transform .08s;
+
+    /*
+        INI MEMBUAT SPASI
+        TIDAK HILANG
+    */
+
+    white-space: pre;
+}
+
+
+.char.show {
+
+    opacity: 1;
+
+    transform:
+        translateY(0);
+}
+
+
+/* STATUS */
+
+.status {
+
+    text-align: center;
+
+    color: #888;
+
+    font-size: 13px;
+
+    margin-top: 15px;
+}
+
+
+/* MOBILE */
+
+@media(max-width:600px) {
+
+    body {
+        padding: 12px;
+    }
+
+    .header h1 {
+        font-size: 27px;
+    }
+
+    .time-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .cover {
+        width: 150px;
+        height: 150px;
+    }
+
+    .lyric-line {
+        font-size: 18px;
+    }
+
+}
+
+</style>
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+    <!-- HEADER -->
+
+    <div class="header">
+
+        <h1>🎵 My Lyrics Player</h1>
+
+        <p>
+            Musik dan lirik buatan sendiri
+        </p>
+
+    </div>
+
+
+
+    <!-- =========================
+         MUSIK
+    ========================== -->
+
+    <div class="card">
+
+        <label>
+            🎧 Upload Musik Sendiri
+        </label>
+
+        <input
+            type="file"
+            id="musicFile"
+            accept="audio/*"
+        >
+
+        <div class="info">
+
+            Pilih file MP3, WAV, M4A,
+            atau audio lainnya dari perangkatmu.
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =========================
+         LIRIK
+    ========================== -->
+
+    <div class="card">
+
+        <label>
+            📝 Tulis Lirik Sendiri
+        </label>
+
+        <textarea
+            id="lyricsInput"
+            placeholder="Tulis lirik di sini...
+
+Contoh:
+
+Malam mulai datang
+Aku masih berjalan
+Menatap langit malam
+Mencari sebuah harapan
+
+Gunakan Enter untuk membuat
+baris lirik baru."
+        ></textarea>
+
+
+        <button
+            onclick="loadLyrics()"
+        >
+            ✨ Masukkan Lirik
+        </button>
+
+
+        <div class="info">
+
+            Spasi antar kata akan otomatis
+            dipertahankan dan ikut dihitung
+            sebagai karakter.
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =========================
+         TIMING
+    ========================== -->
+
+    <div class="card">
+
+        <h2>
+            ⚙️ Pengaturan Kecepatan
+        </h2>
+
+
+        <!-- PER HURUF -->
+
+        <div class="time-section">
+
+            <div class="time-title">
+                ⚡ Kecepatan Per Huruf
+            </div>
+
+
+            <div class="time-grid">
+
+
+                <div class="time-item">
+
+                    <label>
+                        Menit
+                    </label>
+
+                    <input
+                        type="number"
+                        id="charMin"
+                        value="0"
+                        min="0"
+                    >
+
+                </div>
+
+
+                <div class="time-item">
+
+                    <label>
+                        Detik
+                    </label>
+
+                    <input
+                        type="number"
+                        id="charSec"
+                        value="0"
+                        min="0"
+                    >
+
+                </div>
+
+
+                <div class="time-item">
+
+                    <label>
+                        Milidetik
+                    </label>
+
+                    <input
+                        type="number"
+                        id="charMs"
+                        value="100"
+                        min="0"
+                    >
+
+                </div>
+
+
+            </div>
+
+
+            <div class="info">
+
+                Contoh:
+                100 milidetik =
+                satu karakter setiap 0,1 detik.
+
+            </div>
+
+        </div>
+
+
+
+        <!-- PER BARIS -->
+
+        <div class="time-section">
+
+            <div class="time-title">
+                📏 Kecepatan Per Baris
+            </div>
+
+
+            <div class="time-grid">
+
+
+                <div class="time-item">
+
+                    <label>
+                        Menit
+                    </label>
+
+                    <input
+                        type="number"
+                        id="lineMin"
+                        value="0"
+                        min="0"
+                    >
+
+                </div>
+
+
+                <div class="time-item">
+
+                    <label>
+                        Detik
+                    </label>
+
+                    <input
+                        type="number"
+                        id="lineSec"
+                        value="1"
+                        min="0"
+                    >
+
+                </div>
+
+
+                <div class="time-item">
+
+                    <label>
+                        Milidetik
+                    </label>
+
+                    <input
+                        type="number"
+                        id="lineMs"
+                        value="0"
+                        min="0"
+                    >
+
+                </div>
+
+
+            </div>
+
+
+            <div class="info">
+
+                Setelah satu baris selesai,
+                player menunggu waktu ini
+                sebelum lanjut ke baris berikutnya.
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =========================
+         PLAYER
+    ========================== -->
+
+    <div class="card player">
+
+        <div
+            class="cover"
+            id="cover"
+        ></div>
+
+
+        <audio
+            id="audio"
+        ></audio>
+
+
+        <div class="music-time">
+
+            <span id="current">
+                00:00
+            </span>
+
+            /
+
+            <span id="duration">
+                00:00
+            </span>
+
+        </div>
+
+
+        <input
+            type="range"
+            id="progress"
+            value="0"
+            min="0"
+            max="100"
+        >
+
+
+        <div class="controls">
+
+            <button
+                onclick="back10()"
+            >
+                ⏪ -10
+            </button>
+
+
+            <button
+                id="playBtn"
+                onclick="togglePlay()"
+            >
+                ▶ PLAY
+            </button>
+
+
+            <button
+                onclick="forward10()"
+            >
+                +10 ⏩
+            </button>
+
+        </div>
+
+
+        <div
+            class="status"
+            id="status"
+        >
+            Belum ada musik
+        </div>
+
+    </div>
+
+
+
+    <!-- =========================
+         LIRIK BERJALAN
+    ========================== -->
+
+    <div class="card">
+
+        <label>
+            🎤 Lirik Berjalan
+        </label>
+
+
+        <div
+            class="lyrics-box"
+            id="lyricsBox"
+        >
+
+            <div class="info">
+
+                Masukkan lirik terlebih dahulu.
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+</div>
+
+
+
+<script>
+
+
+/* =========================
+   ELEMENT
+========================= */
+
+const audio =
+    document.getElementById("audio");
+
+const musicFile =
+    document.getElementById("musicFile");
+
+const cover =
+    document.getElementById("cover");
+
+const playBtn =
+    document.getElementById("playBtn");
+
+const progress =
+    document.getElementById("progress");
+
+const current =
+    document.getElementById("current");
+
+const duration =
+    document.getElementById("duration");
+
+const lyricsBox =
+    document.getElementById("lyricsBox");
+
+const status =
+    document.getElementById("status");
+
+
+/* =========================
+   VARIABLE
+========================= */
+
+let lyrics = [];
+
+let currentLine = 0;
+
+let currentChar = 0;
+
+let charTimer = null;
+
+let playing = false;
+
+
+
+/* =========================
+   UPLOAD MUSIK
+========================= */
+
+musicFile.addEventListener(
+    "change",
+    function() {
+
+        const file =
+            this.files[0];
+
+        if (!file) {
+            return;
+        }
+
+
+        const url =
+            URL.createObjectURL(file);
+
+
+        audio.src = url;
+
+        audio.load();
+
+
+        status.textContent =
+            "Musik: " + file.name;
+
+
+        audio.addEventListener(
+            "loadedmetadata",
+            function() {
+
+                duration.textContent =
+                    formatTime(
+                        audio.duration
+                    );
+
+            },
+            {
+                once: true
+            }
+        );
+
+    }
+);
+
+
+
+/* =========================
+   WAKTU PER HURUF
+========================= */
+
+function getCharDelay() {
+
+    const min =
+        Number(
+            document.getElementById(
+                "charMin"
+            ).value
+        ) || 0;
+
+
+    const sec =
+        Number(
+            document.getElementById(
+                "charSec"
+            ).value
+        ) || 0;
+
+
+    const ms =
+        Number(
+            document.getElementById(
+                "charMs"
+            ).value
+        ) || 0;
+
+
+    return (
+        min * 60000 +
+        sec * 1000 +
+        ms
+    );
+}
+
+
+
+/* =========================
+   WAKTU PER BARIS
+========================= */
+
+function getLineDelay() {
+
+    const min =
+        Number(
+            document.getElementById(
+                "lineMin"
+            ).value
+        ) || 0;
+
+
+    const sec =
+        Number(
+            document.getElementById(
+                "lineSec"
+            ).value
+        ) || 0;
+
+
+    const ms =
+        Number(
+            document.getElementById(
+                "lineMs"
+            ).value
+        ) || 0;
+
+
+    return (
+        min * 60000 +
+        sec * 1000 +
+        ms
+    );
+}
+
+
+
+/* =========================
+   MASUKKAN LIRIK
+========================= */
+
+function loadLyrics() {
+
+    clearTimeout(charTimer);
+
+
+    const text =
+        document.getElementById(
+            "lyricsInput"
+        ).value;
+
+
+    /*
+       Jangan trim() setiap baris,
+       supaya spasi tetap dipertahankan.
+    */
+
+    lyrics =
+        text
+        .split("\n")
+        .filter(
+            line =>
+                line.trim().length > 0
+        );
+
+
+    lyricsBox.innerHTML = "";
+
+
+    lyrics.forEach(
+        (text, index) => {
+
+            const line =
+                document.createElement(
+                    "div"
+                );
+
+
+            line.className =
+                "lyric-line";
+
+
+            line.dataset.index =
+                index;
+
+
+            /*
+               Setiap karakter dibuat
+               menjadi elemen sendiri.
+
+               SPASI JUGA MASUK.
+            */
+
+            for (
+                let i = 0;
+                i < text.length;
+                i++
+            ) {
+
+                const char =
+                    document.createElement(
+                        "span"
+                    );
+
+
+                char.className =
+                    "char";
+
+
+                /*
+                   Spasi asli tetap dipakai.
+                */
+
+                char.textContent =
+                    text[i];
+
+
+                /*
+                   Memastikan browser
+                   tidak menghilangkan spasi.
+                */
+
+                char.style.whiteSpace =
+                    "pre";
+
+
+                line.appendChild(
+                    char
+                );
+
+            }
+
+
+            lyricsBox.appendChild(
+                line
+            );
+
+        }
+    );
+
+
+    currentLine = 0;
+
+    currentChar = 0;
+
+
+    status.textContent =
+        lyrics.length +
+        " baris lirik siap dimainkan.";
+}
+
+
+
+/* =========================
+   SEMBUNYIKAN LIRIK
+========================= */
+
+function hideAllChars() {
+
+    document
+        .querySelectorAll(".char")
+        .forEach(
+            char => {
+
+                char.classList.remove(
+                    "show"
+                );
+
+            }
+        );
+
+
+    document
+        .querySelectorAll(".lyric-line")
+        .forEach(
+            line => {
+
+                line.classList.remove(
+                    "active"
+                );
+
+            }
+        );
+}
+
+
+
+/* =========================
+   MULAI LIRIK
+========================= */
+
+function startLyrics() {
+
+    clearTimeout(charTimer);
+
+    currentLine = 0;
+
+    currentChar = 0;
+
+    hideAllChars();
+
+    showCharacter();
+}
+
+
+
+/* =========================
+   ANIMASI LIRIK
+========================= */
+
+function showCharacter() {
+
+    if (!playing) {
+        return;
+    }
+
+
+    /*
+       Semua baris selesai
+    */
+
+    if (
+        currentLine >=
+        lyrics.length
+    ) {
+
+        return;
+    }
+
+
+    const line =
+        document.querySelector(
+            `.lyric-line[data-index="${currentLine}"]`
+        );
+
+
+    if (!line) {
+        return;
+    }
+
+
+    line.classList.add(
+        "active"
+    );
+
+
+    /*
+       Scroll otomatis
+    */
+
+    line.scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+    });
+
+
+    const chars =
+        line.querySelectorAll(
+            ".char"
+        );
+
+
+    /*
+       Semua karakter dalam
+       baris sudah selesai.
+    */
+
+    if (
+        currentChar >=
+        chars.length
+    ) {
+
+        currentLine = currentLine + 1;
+
+        currentChar = 0;
+
+
+        /*
+           Tunggu kecepatan
+           per baris.
+        */
+
+        charTimer =
+            setTimeout(
+                showCharacter,
+                getLineDelay()
+            );
+
+
+        return;
+    }
+
+
+    /*
+       Tampilkan SATU karakter.
+    */
+
+    chars[
+        currentChar
+    ].classList.add(
+        "show"
+    );
+
+
+    currentChar++;
+
+
+    /*
+       Tunggu sesuai
+       kecepatan per huruf.
+    */
+
+    charTimer =
+        setTimeout(
+            showCharacter,
+            getCharDelay()
+        );
+}
+
+
+
+/* =========================
+   PLAY / PAUSE
+========================= */
+
+function togglePlay() {
+
+    if (!audio.src) {
+
+        alert(
+            "Upload musik terlebih dahulu."
+        );
+
+        return;
+    }
+
+
+    if (audio.paused) {
+
+        audio.play();
+
+
+        playing = true;
+
+
+        playBtn.textContent =
+            "⏸ PAUSE";
+
+
+        cover.classList.add(
+            "playing"
+        );
+
+
+        /*
+           Mulai dari awal jika
+           lirik belum berjalan.
+        */
+
+        if (
+            currentLine === 0 &&
+            currentChar === 0
+        ) {
+
+            startLyrics();
+
+        }
+        else {
+
+            showCharacter();
+
+        }
+
+    }
+
+    else {
+
+        audio.pause();
+
+
+        playing = false;
+
+
+        playBtn.textContent =
+            "▶ PLAY";
+
+
+        cover.classList.remove(
+            "playing"
+        );
+
+
+        clearTimeout(
+            charTimer
+        );
+
+    }
+}
+
+
+
+/* =========================
+   MUSIK SELESAI
+========================= */
+
+audio.addEventListener(
+    "ended",
+    function() {
+
+        playing = false;
+
+        playBtn.textContent =
+            "▶ PLAY";
+
+        cover.classList.remove(
+            "playing"
+        );
+
+        clearTimeout(
+            charTimer
+        );
+
+    }
+);
+
+
+
+/* =========================
+   UPDATE PROGRESS
+========================= */
+
+audio.addEventListener(
+    "timeupdate",
+    function() {
+
+        if (!audio.duration) {
+            return;
+        }
+
+
+        progress.value =
+            (
+                audio.currentTime /
+                audio.duration
+            ) * 100;
+
+
+        current.textContent =
+            formatTime(
+                audio.currentTime
+            );
+
+    }
+);
+
+
+
+/* =========================
+   SEEK
+========================= */
+
+progress.addEventListener(
+    "input",
+    function() {
+
+        if (!audio.duration) {
+            return;
+        }
+
+
+        audio.currentTime =
+            (
+                this.value / 100
+            ) *
+            audio.duration;
+
+    }
+);
+
+
+
+/* =========================
+   MUNDUR 10 DETIK
+========================= */
+
+function back10() {
+
+    audio.currentTime =
+        Math.max(
+            0,
+            audio.currentTime - 10
+        );
+}
+
+
+
+/* =========================
+   MAJU 10 DETIK
+========================= */
+
+function forward10() {
+
+    if (!audio.duration) {
+        return;
+    }
+
+
+    audio.currentTime =
+      Math.min(
+          audio.duration.
+          audio.currentTime + 10
+      );
+}
+
+
+/* =======================
+   FORMAT WAKTU
+======================= */
+function formatTime(second) {
+  
+    if(
+       !isFinite(second)
+    ) {
+      
+       return "00:00";
+
+    }
+
+      const minutes=
+         Math.floor(
+            seconds / 60
+         );
+
+       const secondsPart=
+          Math.floor(
+            seconds % 60
+          );
+
+  return (
+      string(minutes)
+          .padStart(2, "0")
+      +
+      ":"
+      +
+      string(secondsPart)
+          .padStart(2, "0")
+  )
+}
+
+</script>
+
+</body>
+</html>
+      
+      
+  
